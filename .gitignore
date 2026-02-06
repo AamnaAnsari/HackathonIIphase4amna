@@ -1,0 +1,44 @@
+# ==========================
+# 🐍 Python / Backend
+# ==========================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+
+# Virtual Environment (Boht Zaroori)
+venv/
+.venv/
+env/
+ENV/
+
+# Environment Variables (Secrets - Kabhi upload na karein)
+.env
+.env.local
+.env.*
+
+# ==========================
+# ⚛️ Node.js / Frontend
+# ==========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Next.js Build Output
+.next/
+out/
+build/
+dist/
+
+# ==========================
+# 🛠️ General / IDEs
+# ==========================
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
