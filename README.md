@@ -77,8 +77,7 @@ HackathonIIphase4amna/
 
 Our journey from a simple local script to a professional Cloud-Native system:
 
----
-
+```
 graph TD
     %% Phase 1 & 2 (Foundation)
     subgraph P1_P2 [Phase 1 & 2: Local Foundation]
@@ -117,9 +116,10 @@ graph TD
     style K fill:#fff,stroke:#333
     style L fill:#fff,stroke:#333
     style M fill:#ff9,stroke:#f66,stroke-width:2px
+
+    ```
     
 ---
-
 
 ## ✅ Status
 
