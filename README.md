@@ -73,40 +73,51 @@ HackathonIIphase4amna/
 ---
 
 
-### 🌐 System Architecture Diagram
+🏗️ Project Architecture Evolution (Phase 1 - 5)
 
-```mermaid
+Our journey from a simple local script to a professional Cloud-Native system:
+
+---
+
 graph TD
-    User((User)) -- HTTPS/Vercel --> FE[Next.js Frontend]
-    FE -- JWT/Auth --> BE[FastAPI Backend - HF Spaces]
-    
-    subgraph "The Brain"
-        BE -- Model Context Protocol --> Gemini((Google Gemini))
-        Gemini -- Tools --> CRUD[MCP CRUD Tools]
-    end
-    
-    subgraph "Infrastructure Layer (Dapr)"
-        BE -- gRPC --> DaprSidecar[Dapr Sidecar]
-        DaprSidecar -- Pub/Sub --> Kafka[Redpanda Cloud]
-    end
-    
-    subgraph "Persistence"
-        CRUD -- SQL --> Neon[(Neon PostgreSQL)]
-        DaprSidecar -- State --> Redis[Redis State Store]
-    end
-    
-    subgraph "Microservices"
-        Kafka -- Topic: task-events --> NS[Notification Service]
-        NS -- Sidecar --> Logs((Reminders/Logs))
+    %% Phase 1 & 2 (Foundation)
+    subgraph P1_P2 [Phase 1 & 2: Local Foundation]
+        A[models.py] --- B[manager.py]
+        B --- C[(Local SQLite/Files)]
     end
 
-### Explanation of the Diagram:
-1.  **Vercel & Next.js:** This is your entrance gate where the user interacts.
-2.  **Hugging Face & FastAPI:** This is the core logic. It’s stateless, meaning it doesn't store anything on the disk, making it fast and scalable.
-3.  **Dapr Sidecar:** This is the bridge you built. It allows your backend to talk to Kafka (Redpanda) without needing heavy Kafka drivers in your code.
-4.  **Redpanda Cloud:** This is your message broker. It handles the "Events" (like Task Created) so the Notification service can react to them later.
-5.  **NeonDB:** Your serverless database that holds all the truth (Tasks & Chat history).
+    %% Phase 3 (Web/API)
+    subgraph P3 [Phase 3: Conversational AI]
+        D[Next.js UI] -- HTTP/JWT -- E[FastAPI Backend]
+        E -- Tool Calling -- F((Google Gemini AI))
+        E -- SQL -- G[(NeonDB Cloud)]
+    end
 
+    %% Phase 4 (Containerization)
+    subgraph P4 [Phase 4: Orchestration]
+        H[Docker: Frontend] --- I[Docker: Backend]
+        I --- J[Minikube/Local K8s]
+    end
+
+    %% Phase 5 (Cloud Native & Events)
+    subgraph P5 [Phase 5: Event-Driven Cloud]
+        K[Vercel UI] -- HTTPS -- L[HF Spaces: Backend API]
+        L -- Dapr Sidecar -- M{Redpanda Cloud / Kafka}
+        M -- Topic: task-events -- N[Notification Microservice]
+        L -- SQL -- O[(NeonDB Serverless)]
+        L -- Dapr State -- P[Redis State Store]
+    end
+
+    %% Evolution Flow
+    P1_P2 ==> P3
+    P3 ==> P4
+    P4 ==> P5
+
+    style P5 fill:#f9f,stroke:#333,stroke-width:4px
+    style K fill:#fff,stroke:#333
+    style L fill:#fff,stroke:#333
+    style M fill:#ff9,stroke:#f66,stroke-width:2px
+    
 ---
 
 
