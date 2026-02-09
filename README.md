@@ -72,10 +72,48 @@ HackathonIIphase4amna/
 
 ---
 
+
+### 🌐 System Architecture Diagram
+
+```mermaid
+graph TD
+    User((User)) -- HTTPS/Vercel --> FE[Next.js Frontend]
+    FE -- JWT/Auth --> BE[FastAPI Backend - HF Spaces]
+    
+    subgraph "The Brain"
+        BE -- Model Context Protocol --> Gemini((Google Gemini))
+        Gemini -- Tools --> CRUD[MCP CRUD Tools]
+    end
+    
+    subgraph "Infrastructure Layer (Dapr)"
+        BE -- gRPC --> DaprSidecar[Dapr Sidecar]
+        DaprSidecar -- Pub/Sub --> Kafka[Redpanda Cloud]
+    end
+    
+    subgraph "Persistence"
+        CRUD -- SQL --> Neon[(Neon PostgreSQL)]
+        DaprSidecar -- State --> Redis[Redis State Store]
+    end
+    
+    subgraph "Microservices"
+        Kafka -- Topic: task-events --> NS[Notification Service]
+        NS -- Sidecar --> Logs((Reminders/Logs))
+    end
+
+### Explanation of the Diagram:
+1.  **Vercel & Next.js:** This is your entrance gate where the user interacts.
+2.  **Hugging Face & FastAPI:** This is the core logic. It’s stateless, meaning it doesn't store anything on the disk, making it fast and scalable.
+3.  **Dapr Sidecar:** This is the bridge you built. It allows your backend to talk to Kafka (Redpanda) without needing heavy Kafka drivers in your code.
+4.  **Redpanda Cloud:** This is your message broker. It handles the "Events" (like Task Created) so the Notification service can react to them later.
+5.  **NeonDB:** Your serverless database that holds all the truth (Tasks & Chat history).
+
+---
+
+
 ## ✅ Status
 
 - ✅ Phase I-IV: Completed
-- 🔄 Phase V: Completed
+- ✅ Phase V: Completed
 
 ---
 
