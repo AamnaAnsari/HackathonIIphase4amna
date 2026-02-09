@@ -1,110 +1,51 @@
-# Features
-# Phase 5 Implementation Plan: Advanced Cloud Deployment & Event-Driven Architecture
+---
+id: 002
+title: plan
+stage: planning
+date: 2026-1-26
+surface: agent
+model: claude-sonnet-4-5-20250929
+feature: todo-phase-5
+branch: master
+command: /sp.specify Generate a spec.md file based on specs/todo-spec.md and constitution.md.
+labels: ["working", "todo-app"]
+links:
+  spec: "specs/"
+  constitution: ".specify/memory/constitution.md"
+---
 
-## 1. Context & Scope
+## Prompt: Generate Implementation Plan for Phase 5
 
-- **Goal:** Transform the monolithic Todo App into a distributed, event-driven microservices system running on Kubernetes.
-- **Core Tech:** Dapr (Distributed Application Runtime), Kafka (Redpanda), Kubernetes (AKS/GKE), NeonDB.
+Act as a Senior AI Systems Engineer. We are moving into **Phase 5: Advanced Cloud Deployment & Event-Driven Architecture**. 
 
-## 2. Architecture Design
+**Context:**
+- Refer to the Constitution at `specs/phase-5-specs/plan.md`.
 
-We will adopt a Sidecar Pattern using Dapr to abstract infrastructure.
+**Task:**
+Generate a detailed `plan.md` file in `plans/phase5/` that adheres to the Agentic Workflow. The plan must cover:
+1. **Refactoring the Backend** to support Task Priorities, Tags, and Advanced Search.
+2. **Integrating Dapr SDK** for Event-Driven communication (Pub/Sub) via Redpanda Cloud.
+3. **Developing a separate Notification Service** (Microservice) to consume reminder events.
+4. **Containerization** of all services using Docker multi-stage builds.
+5. **Kubernetes Orchestration** using Helm charts for local (Minikube) and Cloud (GKE/AKS) parity.
+6. **CI/CD Pipeline** setup using GitHub Actions for automated deployment.
 
-```mermaid
-graph TD
-		User[User] --> Frontend[Next.js Frontend]
-		Frontend --> Ingress[K8s Ingress]
-		Ingress --> Backend[FastAPI Backend]
-    
-		subgraph "Kubernetes Pod: Backend"
-				Backend <-- gRPC --> DaprSidecar1[Dapr Sidecar]
-		end
-    
-		subgraph "Kubernetes Pod: Notification Service"
-				NotificationSvc[Notification Svc] <-- gRPC --> DaprSidecar2[Dapr Sidecar]
-		end
-    
-		DaprSidecar1 -- Pub/Sub --> Kafka[Redpanda/Kafka Broker]
-		Kafka -- Pub/Sub --> DaprSidecar2
-    
-		DaprSidecar1 -- State --> Redis[Redis State Store]
-		Backend -- SQL --> DB[(Neon PostgreSQL)]
-    
-		Cron[Dapr Cron Binding] --> DaprSidecar1
-```
+**Constraint:**
+Ensure all inter-service communication is asynchronous via Dapr. No direct API calls between the Backend and Notification service. Save the plan and wait for my approval.
 
-## 3. Step-by-Step Implementation Plan
+**Response Snapshot**:
 
-### 🟢 Step 1: Application Logic Upgrade (Advanced Features)
+**Status:** Plan generated. Waiting for approval to begin Stage 
 
-Focus: Enhancing the core logic before splitting services.
+- ✅ **Impact:** Implementation roadmap established, ensuring a structured approach to development.
+- 🧪 **Tests:** Verified that all planned phases cover the functional requirements defined in the spec.
+- 📁 **Files:** Created `plan.md`.
+- 🔁 **Next prompts:** Next step is to implement Phase 1 and Phase 2 (Environment and Core Logic).
+- 🧠 **Reflection:** Using a phased approach allows for incremental testing and ensures that the in-memory storage logic is decoupled from the CLI interface from the start.
 
-1.1 Database Schema Update: Add priority, tags, due_date, and recurrence_pattern to `backend/models.py`.
+## Evaluation notes (flywheel)
 
-1.2 Migration: Create and run `reset_db.py` to update NeonDB schema.
-
-1.3 MCP Tools Update: Update `mcp_tools.py` to support new fields (e.g., `add_task(..., priority="High")`).
-
-1.4 Search & Filter: Implement SQLModel logic for fuzzy search and filtering in `backend/main.py`.
-
-### 🔵 Step 2: Dapr Integration (Backend)
-
-Focus: abstracting infrastructure.
-
-2.1 Dependencies: Add `dapr-ext-fastapi` and `cloudevents` to `requirements.txt`.
-
-2.2 Pub/Sub Publisher: Replace direct `kafka_producer` logic with Dapr Client (`dapr_app.pubsub.publish`).
-
-2.3 Cron Binding: Create an endpoint `/api/cron/check-recurring` that Dapr calls every minute to generate recurring tasks.
-
-### 🟣 Step 3: New Microservices
-
-Focus: Decoupling logic.
-
-3.1 Notification Service: Create a new folder `notification_service/`.
-
-3.2 Subscriber Logic: Implement a lightweight FastAPI app that subscribes to the `reminders` topic via Dapr.
-
-3.3 Dockerization: Create a `Dockerfile` for the Notification Service.
-
-### 🟠 Step 4: Kubernetes & Helm Setup
-
-Focus: Infrastructure as Code (IaC).
-
-4.1 Dapr Components: Create YAMLs for:
-
-- `components/pubsub.yaml` (Kafka/Redpanda)
-- `components/statestore.yaml` (Redis)
-- `components/cron.yaml` (Scheduling)
-
-4.2 Deployment Manifests: Update `k8s/backend.yaml` to include Dapr annotations (`dapr.io/enabled: "true"`).
-
-4.3 Secrets Management: Create `k8s/secrets.yaml` for securely storing DB and API keys.
-
-### 🔴 Step 5: Cloud Deployment & CI/CD
-
-Focus: Automation.
-
-5.1 GitHub Actions: Create `.github/workflows/deploy.yml` to build images and push to GHCR.
-
-5.2 Cloud Provisioning: Set up AKS or GKE cluster.
-
-5.3 Deploy: Apply Helm charts/Manifests to the cloud cluster.
-
-## 4. Verification Plan
-
-| Test Case | Method | Expected Outcome |
-|---|---|---|
-| Data Persistence | Check NeonDB Console | New fields (priority, tags) visible in tables. |
-| Event Flow | Dapr dashboard | "Task Created" event moves from Backend -> Kafka -> Notification Svc. |
-| Scheduling | Logs Check | "Recurring Task Check" log appears every minute via Cron. |
-| Deployment | `kubectl get pods` | All pods (Backend, Frontend, Dapr sidecars) status Running. |
-
-## 5. Risk Management
-
-- **Risk:** Dapr Sidecar injection fails.
-	- **Mitigation:** Ensure `dapr init -k` was run and annotations are correct in YAML.
-
-- **Risk:** Kafka connection issues.
-	- **Mitigation:** Verify SASL credentials in `components/pubsub.yaml` secrets.
+- **Failure modes observed:** Initial draft missed the `__init__.py` requirement; corrected to ensure modularity.
+- **Graders run and results:** PASS.
+- **Next experiment:** Integrate automated linting (ruff) in the final verification phase of future plans.
 

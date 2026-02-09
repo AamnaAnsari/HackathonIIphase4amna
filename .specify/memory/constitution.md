@@ -1,76 +1,95 @@
-# [Phase 3 Ai todo chatbot] Constitution
+---
+id: 001
+title: constitution
+stage: planning
+date: 2026-1-26
+surface: agent
+model: claude-sonnet-4-5-20250929
+feature: todo-core
+branch: master
+command: /sp.plan Generate a plan.md file based on specs/todo-spec.md and constitution.md.
+labels: ["planning", "todo-app"]
+links:
+  constitution: ".specify/memory/constitution.md"
+---
 
-```markdown
-id	title	stage	date	surface	model	feature	branch	user	command	labels	links	files	tests
-2
-Phase-3 AI CUI constitution update
-constitution
-2025-12-19
-agent
-claude-opus-4-5-20251101
-none
-main
-unknown
-/sp.constitution
-constitution
-amendment
-phase-3
-ai-agents
-mcp
-cui
-spec	ticket	adr	pr
-.specify/memory/constitution.md
-None (documentation only)
+# Phase 5 Constitution: Advanced Cloud & Event-Driven Architecture
 
+**Version:** 2.1.0
 
-Prompt:
-We are starting Phase 3: AI Chatbot. I need to update the Database Schema to store chat history.
+**Project:** AI-Powered Conversational Todo System
 
-Please update `backend/models.py` to add two new models strictly following the Phase 3 specs:
+**Framework:** Spec-Kit Plus Agentic Workflow
 
-1.  **Conversation Model:**
-    - `id`: int, primary key.
-    - `user_id`: str (foreign key to users, or just indexed string if FK is disabled).
-    - `created_at`: datetime (default now).
-    - `updated_at`: datetime (default now).
+🏛️ 1. ARCHITECTURAL MANDATES
 
-2.  **Message Model:**
-    - `id`: int, primary key.
-    - `conversation_id`: int (foreign key to conversation.id).
-    - `role`: str (e.g., "user" or "assistant").
-    - `content`: str (The actual text).
-    - `created_at`: datetime (default now).
+I. Event-Driven Messaging (Redpanda/Kafka)
 
-3.  **Update `reset_db.py`:**
-    - Ensure these new tables are included in the reset script so we can generate them cleanly if needed.
+Communication between the system's microservices must always be asynchronous.
 
-Refuse to delete the existing `Task` or `User` models. Just ADD the new ones.
+Principle: The Backend must always publish "Domain Events" whenever a task is created, updated, or deleted.
 
+Infrastructure: Redpanda Cloud (Kafka API) shall be utilized as the primary message broker.
 
-Response snapshot
-Successfully amended the project constitution from v1.0.0 to v1.1.0 (MINOR version bump).
+Constraint: Direct HTTP calls between microservices are strictly prohibited to ensure loose coupling.
 
-New Principles Added (Phase-3):
+II. Dapr Abstraction Layer
 
-VIII. Stateless Server Architecture: No in-memory state; all session and AI agent state persisted in PostgreSQL; enables horizontal scaling
-IX. Tool-Driven AI Behavior (MCP): AI agents MUST use MCP tools for all operations; prevents prompt injection; provides auditable AI actions
-X. Conversation Persistence: All messages stored in database; multi-turn context preserved; tool calls logged for debugging
-Updated Architectural Constraints:
+To remain infrastructure-agnostic, the system will follow the Dapr (Distributed Application Runtime) sidecar pattern.
 
-Added OpenAI ChatKit UI to frontend stack
-Added OpenAI Agents SDK to backend stack
-Added Official MCP SDK to backend stack
-Added 3 new constraint validations for AI/MCP components
-Preserved Principles (I-VII): All original Phase-2 principles retained without modification, ensuring backward compatibility with existing implementation.
+Pub/Sub: Dapr Pub/Sub components must be used for all messaging requirements.
 
-Outcome
-✅ Impact: Constitution extended with 3 new AI/CUI-specific principles, enabling Phase-3 development while preserving all Phase-2 governance
-🧪 Tests: None (governance document)
-📁 Files: Updated .specify/memory/constitution.md (v1.0.0 → v1.1.0, 256 lines)
-🔁 Next prompts: Ready for /sp.specify to create Phase-3 CUI feature specification
-🧠 Reflection: MINOR version bump appropriate as new principles ADD to existing governance without changing existing principle semantics; stateless architecture principle critical for production scalability
-Evaluation notes (flywheel)
-Failure modes observed: None
-Graders run and results (PASS/FAIL): Not applicable (documentation amendment)
-Prompt variant (if applicable): Standard constitution amendment via /sp.constitution with Phase-3 scope
-Next experiment (smallest change to try): Validate new MCP/AI principles against upcoming Phase-3 spec to ensure sufficient coverage for AI agent safety and controllability
+State Store: Dapr State Store (Redis/Postgres) shall be used for temporary data and distributed locking.
+
+Statelessness: Backend services must be 100% stateless to enable horizontal scaling within the Kubernetes environment.
+
+III. AI Agent Sovereignty (Gemini & MCP)
+
+The Google Gemini LLM shall serve as the primary controller for the chat interface.
+
+Tool-Driven: The AI must not interact with the database directly; it must perform all operations through MCP (Model Context Protocol) tools.
+
+Context Awareness: Chat history must be persisted in Neon PostgreSQL to maintain long-term memory and context.
+
+🛠️ 2. TECHNOLOGY CONSTRAINTS
+
+- **Backend:** FastAPI (Python 3.11+) with uv
+- **Frontend:** Next.js 14+ with pnpm and Shadcn/UI
+- **Intelligence:** Google Gemini (via AI Agents SDK)
+- **Database:** Neon PostgreSQL (Serverless)
+- **Message Broker:** Redpanda Cloud (Kafka)
+- **Deployment:** Kubernetes (Minikube for Dev / AKS or GKE for Prod)
+- **Containerization:** Docker (Multi-stage builds)
+
+📂 3. PROJECT STRUCTURE & SEPARATION
+
+Microservices must be strictly decoupled:
+
+- `src/backend`: Manages Chat-API and Task CRUD operations.
+- `src/notification-service`: Consumes Kafka topics to trigger and send reminders.
+- `src/frontend`: Handles the user interface and Better Auth client-side logic.
+- `k8s/`: Contains all Kubernetes manifests (Deployments, Services, ConfigMaps).
+- `dapr/components/`: Infrastructure configuration files (pubsub.yaml, statestore.yaml).
+
+🧪 4. COMPLIANCE & GOVERNANCE
+
+### I. Spec-First Development
+
+No code implementation shall commence without the generation and approval of `/sp.specify` and `/sp.plan` documents. The AI Agent is required to generate design documentation first.
+
+### II. Secret Management
+
+`.env` files must never be included in Docker images or the Git repository.
+
+Kubernetes Secrets or the Dapr Secrets API must be used for all cloud deployments.
+
+### III. Definition of Done (DoD)
+
+A task is considered complete only when:
+
+- Docker images build successfully without errors.
+- Events are verified on the Redpanda topic.
+- Dapr sidecars are active between microservices.
+- The end-to-end flow is functional on the cloud deployment (Hugging Face/GKE).
+
+Ratified Date: February 01, 2026
